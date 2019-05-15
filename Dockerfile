@@ -4,7 +4,8 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update; \
         apt-get install -y --no-install-recommends wget software-properties-common apt-transport-https unzip sudo curl gnupg libunwind8 nano httpie mtr iputils-ping iputils-tracepath traceroute; \
-        apt-get upgrade; \
+        apt-get install -y --no-install-recommends mtr iputils-ping iputils-tracepath traceroute iproute2 dnsutils; \
+	apt-get upgrade; \
         apt-get purge -y --auto-remove
 
 # Kubernetes Powershell gcloud

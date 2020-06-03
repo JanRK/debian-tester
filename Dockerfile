@@ -18,3 +18,4 @@ RUN wget --directory-prefix=/usr/share/keyrings https://packages.microsoft.com/k
 		apt-get update; \
 		apt-get install -y --no-install-recommends powershell kubectl google-cloud-sdk; \
 		apt-get purge -y --auto-remove
+

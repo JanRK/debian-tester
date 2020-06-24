@@ -17,5 +17,4 @@ RUN wget --directory-prefix=/usr/share/keyrings https://packages.microsoft.com/k
 		sh -c "echo 'deb [signed-by=/usr/share/keyrings/gcloud-key.gpg] https://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main' >> /etc/apt/sources.list.d/gcloud.list"; \
 		apt-get update; \
 		apt-get install -y --no-install-recommends powershell kubectl google-cloud-sdk; \
-		apt-get purge -y --auto-remove
-
+		apt-get purge -y --auto-remove; apt-get clean; rm -rf /var/lib/apt/lists/*

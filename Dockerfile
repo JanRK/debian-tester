@@ -1,4 +1,4 @@
-FROM debian:stable-slim
+FROM debian:stable
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV POWERSHELL_CLI_TELEMETRY_OPTOUT=1

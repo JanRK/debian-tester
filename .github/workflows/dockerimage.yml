@@ -1,43 +1,14 @@
-name: Docker Test-Publish
+name: Docker Publish
 
 on:
   push:
-    # Publish `master` as Docker `latest` image.
-    branches:
-      - master
-
-    # Publish `v1.2.3` tags as releases.
-    tags:
-      - v*
-
-  # Run tests for any PRs.
   pull_request:
+  schedule:
+    - cron:  '0 0 */7 * *'
 
 jobs:
-  # Run tests.
-  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-  test:
+  build:
     runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v1
-
-      - name: Run tests
-        run: |
-          if [ -f docker-compose.test.yml ]; then
-            docker-compose --file docker-compose.test.yml build
-            docker-compose --file docker-compose.test.yml run sut
-          else
-            docker build . --file Dockerfile
-          fi
-
-
-  push:
-    # Ensure test job passes before pushing image.
-    needs: test
-
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
 
     steps:
       - uses: actions/checkout@v1
@@ -46,9 +17,10 @@ jobs:
         run: docker build . --file Dockerfile --tag ${GITHUB_REPOSITORY,,}
 
       - name: Log into registry
-        run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+        run: |
+          echo "${{ secrets.QUAY_TOKEN }}" | docker login quay.io --username ${{ secrets.QUAY_USER }} --password-stdin
 
-      - name: Push image
+      - name: Push image to quay.io
         run: |
           IMAGE_ID=${GITHUB_REPOSITORY,,}
           # Strip git ref prefix from version
@@ -59,5 +31,5 @@ jobs:
           [ "$VERSION" == "master" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag ${GITHUB_REPOSITORY,,} $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker tag $IMAGE_ID quay.io/$IMAGE_ID:$VERSION
+          docker push quay.io/$IMAGE_ID:$VERSION

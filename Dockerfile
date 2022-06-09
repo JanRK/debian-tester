@@ -1,24 +1,36 @@
 FROM debian:stable
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV POWERSHELL_CLI_TELEMETRY_OPTOUT=1
-ENV POWERSHELL_TELEMETRY_OPTOUT=1
-ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
-ENV DOTNET_TELEMETRY_OPTOUT=1
+ENV DEBIAN_FRONTEND=noninteractive \
+		POWERSHELL_CLI_TELEMETRY_OPTOUT=1 \
+		POWERSHELL_TELEMETRY_OPTOUT=1 \
+		DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+		DOTNET_TELEMETRY_OPTOUT=1 \
+		POWERSHELL_UPDATECHECK=Off \
+		POWERSHELL_UPDATECHECK_OPTOUT=1
 
 RUN apt-get update; \
-        apt-get install -y --no-install-recommends wget software-properties-common apt-transport-https unzip sudo curl gnupg libunwind8 nano httpie mtr iputils-ping iputils-tracepath traceroute; \
-        apt-get install -y --no-install-recommends mtr iputils-ping iputils-tracepath traceroute iproute2 dnsutils; \
-	apt-get upgrade; \
-        apt-get purge -y --auto-remove; apt-get clean; rm -rf /var/lib/apt/lists/*
-
-# Kubernetes Powershell gcloud
-RUN wget --directory-prefix=/usr/share/keyrings https://packages.microsoft.com/keys/microsoft.asc && gpg --dearmor --yes /usr/share/keyrings/microsoft.asc; \
-		sh -c "echo 'deb [signed-by=/usr/share/keyrings/microsoft.asc.gpg] https://packages.microsoft.com/debian/10/prod buster main' > /etc/apt/sources.list.d/microsoft.list"; \
-		wget --directory-prefix=/usr/share/keyrings https://packages.cloud.google.com/apt/doc/apt-key.gpg; \
-		sh -c "echo 'deb [signed-by=/usr/share/keyrings/apt-key.gpg] http://apt.kubernetes.io/ kubernetes-xenial main' > /etc/apt/sources.list.d/kubernetes.list"; \
-		wget -O /usr/share/keyrings/gcloud-key.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg; \
-		sh -c "echo 'deb [signed-by=/usr/share/keyrings/gcloud-key.gpg] https://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main' >> /etc/apt/sources.list.d/gcloud.list"; \
+		apt-get install -y --no-install-recommends apt-transport-https ca-certificates; \
+		apt-get purge -y --auto-remove; apt-get clean; rm -rf /var/lib/apt/lists/*; \
+		aptlists=$(find /etc/apt -type f -name "*.list"); \
+		for filename in $aptlists; do \
+		sed -i 's|http://ftp.acc.umu.se|https://deb.debian.org|g' $filename; \
+		sed -i 's|http://ftp.debian.org|https://deb.debian.org|g' $filename; \
+		sed -i 's|http://deb.debian.org|https://deb.debian.org|g' $filename; \
+		sed -i 's|http://storage.googleapis.com|https://storage.googleapis.com|g' $filename; \
+		sed -i 's|http://packages.cloud.google.com|https://packages.cloud.google.com|g' $filename; \
+		sed -i 's|http://apt.llvm.org|https://apt.llvm.org|g' $filename; \
+		sed -i 's|http://repo.mysql.com|https://repo.mysql.com|g' $filename; \
+		sed -i 's|http://apt.postgresql.org|https://apt.postgresql.org|g' $filename; \
+		done; \
 		apt-get update; \
-		apt-get install -y --no-install-recommends powershell kubectl google-cloud-sdk; \
+		apt-get install -y --no-install-recommends wget gnupg software-properties-common unzip curl libunwind8 nano httpie mtr iputils-ping iputils-tracepath traceroute iproute2 dnsutils netcat git; \
+		apt-get purge -y --auto-remove; apt-get clean; rm -rf /var/lib/apt/lists/*
+
+# Kubernetes Powershell
+RUN wget --directory-prefix=/usr/share/keyrings https://packages.microsoft.com/keys/microsoft.asc && gpg --dearmor --yes /usr/share/keyrings/microsoft.asc; \
+		echo "deb [signed-by=/usr/share/keyrings/microsoft.asc.gpg] https://packages.microsoft.com/debian/$VERSION_ID/prod $VERSION_CODENAME main" > /etc/apt/sources.list.d/microsoft.list; \
+		wget -O /usr/share/keyrings/gcloud-key.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg; \
+		echo "deb [signed-by=/usr/share/keyrings/gcloud-key.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list; \
+		apt-get update; \
+		apt-get install -y --no-install-recommends powershell kubectl; \
 		apt-get purge -y --auto-remove; apt-get clean; rm -rf /var/lib/apt/lists/*

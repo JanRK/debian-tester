@@ -26,12 +26,11 @@ RUN apt-get update; \
 		apt-get install -y --no-install-recommends wget gnupg software-properties-common unzip curl libunwind8 nano httpie mtr iputils-ping iputils-tracepath traceroute iproute2 dnsutils netcat git; \
 		apt-get purge -y --auto-remove; apt-get clean; rm -rf /var/lib/apt/lists/*
 
-# Kubernetes Powershell
-RUN wget --directory-prefix=/usr/share/keyrings https://packages.microsoft.com/keys/microsoft.asc && gpg --dearmor --yes /usr/share/keyrings/microsoft.asc; \
-		. /etc/os-release; \
-		echo "deb [signed-by=/usr/share/keyrings/microsoft.asc.gpg] https://packages.microsoft.com/debian/$VERSION_ID/prod $VERSION_CODENAME main" > /etc/apt/sources.list.d/microsoft.list; \
-		wget -O /usr/share/keyrings/gcloud-key.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg; \
-		echo "deb [signed-by=/usr/share/keyrings/gcloud-key.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list; \
+# Kubernetes
+RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.35/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg; \
+		sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg; \
+		echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.35/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list; \
+		sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list; \
 		apt-get update; \
-		apt-get install -y --no-install-recommends powershell kubectl; \
+		apt-get install -y --no-install-recommends kubectl; \
 		apt-get purge -y --auto-remove; apt-get clean; rm -rf /var/lib/apt/lists/*

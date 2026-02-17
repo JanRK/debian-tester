@@ -24,7 +24,7 @@ RUN apt-get update; \
             sed -i 's|https\?://eu-stockholm-1-ad-1.clouds.archive.ubuntu.com/ubuntu|https://eu-stockholm-1-ad-1.clouds.archive.ubuntu.com/ubuntu|g' $filename; \
         done; \
 		apt-get update; \
-		apt-get install -y --no-install-recommends wget gnupg software-properties-common unzip curl libunwind8 nano httpie mtr iputils-ping iputils-tracepath traceroute iproute2 dnsutils netcat-openbsd git; \
+		apt-get install -y --no-install-recommends wget gnupg unzip curl libunwind8 nano httpie mtr iputils-ping iputils-tracepath traceroute iproute2 dnsutils netcat-openbsd git; \
 		apt-get purge -y --auto-remove; apt-get clean; rm -rf /var/lib/apt/lists/*
 
 # Kubernetes
